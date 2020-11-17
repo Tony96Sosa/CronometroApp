@@ -1,12 +1,30 @@
 .cronometro-container{
     width: 90%;
     margin: auto;
-    border: 1px solid red;
-    display: flex;
-    flex-direction: column;
+    font-size: 40px;
 }
-.cronometro-button{
-    width: 50%;
+.cronometro-buttonActivado{
+    background-color: #387EF5;
+    border: none;
+    outline: none;
+    border-radius: 15px;
+    padding: 10px;
+    margin: 5px;
+    color: #fff;
+    font-size: 20px;
+}
+.cronometro-buttonDesactivado{
+    background-color: transparent;
+    border: 1px solid #387EF5;
+    outline: none;
+    border-radius: 15px;
+    padding: 10px;
+    margin: 5px;
+    color: #7c7272;
+    font-size: 20px;
+}
+.cronometro-lista{
+    list-style: none;
+    padding-left: 0;
     font-size: 30px;
-    margin-bottom: 10px;
 }

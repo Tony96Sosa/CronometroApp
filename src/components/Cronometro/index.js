@@ -3,118 +3,142 @@ import './cronometro.css';
 
 class Cronometro extends Component{
     state = {
-        tiempo: {
-            milisegundos: 0,
-            segundos: 0,
-            minutos: 0,
-        },
-        tiempoStop: {
-            segundos: 0,
-            minutos: 0,
-        },
-        contando: false,
-        capturas: [],
+        milisegundos: 0,
+        segundos: 0,
+        minutos: 0,
+        running: false,
+        allTimestamp: [],
+        started: false,
     }
     
     //Función que se llama con el boton start
     handleStartClick = () => {
+        // this.setState({
+        //     contando: true,
+        // })
+        this.timerId = setInterval(() => {
+            this.tick()
+        }, 100);
         this.setState({
-            contando: true,
+            running: true,
+            started: true,
         })
-        this.timerId = setInterval(
-            ()  => this.tick(),
-            10
-        )
+        // if(this.state.running){
+        // }
     }
         
     //Función que se llama con el boton stop
     handleStopClick = () => {
-        this.setState({
-            contando: false,
-        })
         clearInterval(this.timerId);
+        this.setState({
+            running: false,
+        })
     }
     
     //Función que se llama con el boton timestamp
     handleTimestamp = () => {
+        const {minutos, segundos, milisegundos, allTimestamp } = this.state;
+        const newTimestamp = {minutos, segundos, milisegundos};
+        const timestamp = allTimestamp;
+        timestamp.push(newTimestamp);
         this.setState({
-            capturas: [...this.state.capturas,this.state.tiempo],
+            allTimestamp: timestamp,
         })
+        // this.setState({
+        //     capturas: [...this.state.capturas,this.state.tiempo],
+        // })
     }
         
     // Función que se llama con el boton reset
     handleReset = () => {
+        this.updateTimer(0,0,0);
         this.setState({
-            tiempo: {
-                milisegundos: 0,
-                segundos: 0,
-                minutos: 0,
-            },
-            contando: false,
-            capturas: [],
+            allTimestamp: [],
+            started: false,
         })
-        clearInterval(this.timerId);
     }
             
     //Función de actualización del estado
-    updateTimer(milisegundos,segundos, minutos) {
-        milisegundos += 1;
-        if (milisegundos>99){
-            segundos++;
-            milisegundos=0
-        }
-        if (segundos>59){
-            minutos++;
-            segundos=0
-        }
-        let result = {milisegundos,minutos,segundos}
-
-        return result;
+    updateTimer(minutos,segundos,milisegundos) {
+        this.setState({
+            minutos,
+            segundos, 
+            milisegundos,
+        })
     }
 
     //Conteo del cronómetro
     tick() {
-        this.setState({
-            tiempo: this.updateTimer(this.state.tiempo.milisegundos,this.state.tiempo.segundos,this.state.tiempo.minutos),
-        })
+        let minutos = this.state.minutos;
+        let segundos = this.state.segundos; 
+        let milisegundos = this.state.milisegundos + 1;
+
+        if(milisegundos === 10){
+            milisegundos = 0;
+            segundos = segundos + 1;
+        }
+        if(segundos === 60){
+            segundos = 0;
+            minutos = minutos + 1;
+        }
+        if(minutos === 60){
+            minutos = 0;
+        }
+        this.updateTimer(minutos,segundos,milisegundos)
+    }
+
+    addZero = (number) => {
+        let valor = number < 10 ? `0${number}` : number;
+        return valor;
     }
     
     render(){
+        let {minutos, segundos, milisegundos, running, allTimestamp, started } = this.state;
+        minutos = this.addZero(minutos);
+        segundos = this.addZero(segundos);
+        milisegundos = this.addZero(milisegundos);
+
         return(
-            <div className='cronometro-container' >
-                <h2>{this.state.tiempo.minutos} : {this.state.tiempo.segundos} : {this.state.tiempo.milisegundos} </h2>
+            <>
+                <div className='cronometro-container' >
+                    <h3> {`${minutos} : ${segundos} : ${milisegundos}`} </h3>
+                </div>
                 <button 
-                    className='cronometro-button'
-                    disabled={this.state.contando}
+                    disabled={running}
+                    className={`cronometro-button${running ? 'Desactivado' : 'Activado' }`}
                     onClick={this.handleStartClick} >
-                        { !this.state.contando
-                            ? 'Start'
-                            : 'Contando...'
-                        }
+                    Start
                 </button>
                 <button 
-                    className='cronometro-button'
-                    disabled={!this.state.contando}
-                    onClick={this.handleStopClick} >Stop
+                    disabled={!running}
+                    className={`cronometro-button${!running ? 'Desactivado' : 'Activado' }`}
+                    onClick={this.handleStopClick} >
+                    Stop
                 </button>
                 <button 
-                    className='cronometro-button'
-                    disabled={!this.state.contando}
-                    onClick={this.handleTimestamp} >Timestamp
+                    disabled={!running}
+                    className={`cronometro-button${!running ? 'Desactivado' : 'Activado' }`}
+                    onClick={this.handleTimestamp} >
+                    Timestamp
                 </button>
-                <button 
-                    className='cronometro-button'
-                    disabled={this.state.contando}
-                    onClick={this.handleReset} >Reset
-                </button>
-                <ul>
-                    {this.state.capturas.map((captura, index) =>(
-                        <li key={index}>
-                            {`${index + 1} -    ${captura.minutos} : ${captura.segundos} : ${captura.milisegundos}`}
+                { started && <button 
+                    disabled={running}
+                    className={`cronometro-button${running ? 'Desactivado' : 'Activado' }`}
+                    onClick={this.handleReset} >
+                    Reset
+                </button>}
+
+                <ul className='cronometro-lista' >
+                    {allTimestamp.map( (time,index) => (
+                        <li key={`${time.minutos}+${time.segundos}`} >
+                            {`${index+1} -
+                            ${this.addZero(time.minutos)} : 
+                            ${this.addZero(time.segundos)} : 
+                            ${this.addZero(time.milisegundos)}`}
                         </li>
                     ))}
                 </ul>
-            </div>
+            </>
         );
     }
 }

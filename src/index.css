@@ -5,7 +5,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-.title{
+  background-color: #222;
+  color: #387EF5;
   text-align: center;
 }
+

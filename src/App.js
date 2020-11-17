@@ -5,7 +5,7 @@ class App extends Component{
   render(){
     return (
       <>
-        <h1 className='title' >Cronometro App</h1>
+        <h1>Cronometro App</h1>
         <Cronometro />
       </>
     );
